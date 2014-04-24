@@ -128,12 +128,17 @@
 					parseInt(localStorage.getItem(name)));
 		}
 		selector.addEventListener('click', function () {
-			var pick = new MozActivity({
+      // XXX kripken hardcode an xhr instead of MozActivity which only works on device (and even there, doesn't allow loading a binary file)
+
+      console.log('load jar');
+			var pick = {};
+      /*new MozActivity({
 				name: 'pick',
 				data: {
-				   //type: ['*/*']
-				 }
-			});
+				   //type: ['* / *']
+				              }
+			});*/
+
 			pick.onsuccess = function () {
 				js2me.loadJAR(this.result.blob, function () {
 					document.getElementById('screen').innerHTML = '';
@@ -143,6 +148,19 @@
 					js2me.launchMidlet(1);
 				});
 			};
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', 'jars/WhatsApp-S40-Messenger.jar', true);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function() {
+        var typedArray = new Uint8Array(xhr.response);
+        alert('loadzey ' + typedArray.length);
+        pick.result = {
+          blob: new Blob([typedArray], {type: 'application/octet-binary'})
+        };
+        pick.onsuccess();
+      };
+      xhr.send();
 		});
 		if (js2me.config.src) {
 			var request = new XMLHttpRequest;
